@@ -15,10 +15,35 @@
 //* npm i tsx
 // TypeScript Execute (tsx): is a fast, zero-configuration CLI tool and runtime enhancement for Node.js 
 
+// * Request --> IncomingMessage
+// * Response --> ServerResponse
 
-import { createServer } from "http";
-const server = createServer( (req, res) => {
-    console.log(server);
+// ! Content-type":
+//* "text/plain, application/json
+
+
+import { createServer, IncomingMessage, Server, ServerResponse } from "http";
+
+const server: Server = createServer( (req: IncomingMessage, res: ServerResponse) => {
+    // console.log(req.url);
+    // console.log(req.method);
+    // console.log("response:", res);
+    const url = req.url; // endpoints
+    const method = req.method; // CURD("POST", "GET", "PUT", "PATCH")
+
+    if(url === "/" && method === "GET"){
+        // console.log("This is root route!");
+        res.writeHead(200, {"Content-type": "application/json"})
+        res.end(JSON.stringify({message: "This is root route"}));
+    }
+    else if (url?.startsWith("/products")) {
+        res.end(JSON.stringify({message: "this is products route"}));
+    }
+    else{
+        // console.log("This is not defined");
+        res.writeHead(404, {"Content-type": "application/json"})
+        res.end(JSON.stringify({message: "This route is not defined"}));
+    }
 
 })
 
