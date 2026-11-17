@@ -23,28 +23,11 @@
 
 
 import { createServer, IncomingMessage, Server, ServerResponse } from "http";
+import routeHandler from "./routes/route";
 
 const server: Server = createServer( (req: IncomingMessage, res: ServerResponse) => {
-    // console.log(req.url);
-    // console.log(req.method);
-    // console.log("response:", res);
-    const url = req.url; // endpoints
-    const method = req.method; // CURD("POST", "GET", "PUT", "PATCH")
-
-    if(url === "/" && method === "GET"){
-        // console.log("This is root route!");
-        res.writeHead(200, {"Content-type": "application/json"})
-        res.end(JSON.stringify({message: "This is root route"}));
-    }
-    else if (url?.startsWith("/products")) {
-        res.end(JSON.stringify({message: "this is products route"}));
-    }
-    else{
-        // console.log("This is not defined");
-        res.writeHead(404, {"Content-type": "application/json"})
-        res.end(JSON.stringify({message: "This route is not defined"}));
-    }
-
+    routeHandler(req, res);
+    
 })
 
 server.listen(5000, () => {
