@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "http";
-import { productService } from "../service/product.service";
+import { createProduct, productService } from "../service/product.service";
 import type { IProduct } from "../types/product";
 import { bodyParser } from "../utils/parseBody";
 
@@ -50,11 +50,19 @@ const id = urlParams && urlParams[1] === "products" ? Number(urlParams[2])  :nul
     else if(method === "POST" && url === "/products") {
         // "abcd" => "a", "b", "c" => "abc"
         const body = await bodyParser(req);
-        console.log(body);
+        // console.log(body);
+        const newProduct = {
+            id: Date.now(),
+            ...body
+        }
+        const products =  productService(); // [{},{},{}]
+        products.push(newProduct); //[{},{},{}, {new}]
+        createProduct(products);
+        // console.log(newProduct);
 
         res.writeHead(201, { "Content-type": "application/json" })
         res.end(JSON.stringify({ message: "Product created successfully.", 
-            // data: products 
+            data: newProduct 
         }));
     }
 
