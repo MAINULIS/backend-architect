@@ -1,12 +1,13 @@
 import type { IncomingMessage, ServerResponse } from "http";
 import { productService } from "../service/product.service";
 import type { IProduct } from "../types/product";
+import { bodyParser } from "../utils/parseBody";
 
 // * controllers folder for controller handle
 // * service folder for Database
 
 // * /products --> GET, PUT, POST
-export const productController = (req: IncomingMessage, res: ServerResponse) => {
+export const productController = async(req: IncomingMessage, res: ServerResponse) => {
     const url = req.url;
     const method = req.method;
 
@@ -44,6 +45,17 @@ const id = urlParams && urlParams[1] === "products" ? Number(urlParams[2])  :nul
 
         res.writeHead(200, { "Content-type": "application/json" })
         res.end(JSON.stringify({ message: "A single Product retrieve successfully.", data: product }));
+    }
+
+    else if(method === "POST" && url === "/products") {
+        // "abcd" => "a", "b", "c" => "abc"
+        const body = await bodyParser(req);
+        console.log(body);
+
+        res.writeHead(201, { "Content-type": "application/json" })
+        res.end(JSON.stringify({ message: "Product created successfully.", 
+            // data: products 
+        }));
     }
 
 
