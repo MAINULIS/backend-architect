@@ -39,14 +39,22 @@ const id = urlParams && urlParams[1] === "products" ? Number(urlParams[2])  :nul
 
     }
 
+      //! Find a Product
     else if(method === "GET" && id !== null) {
         const products =  productService(); // [{},{},{}]
         const product = products.find((p:IProduct) => p.id = id)
+
+          if(!product) {
+            res.writeHead(404, { "Content-type": "application/json" })
+        res.end(JSON.stringify({ message: "Product not found!", 
+        }));
+        }
 
         res.writeHead(200, { "Content-type": "application/json" })
         res.end(JSON.stringify({ message: "A single Product retrieve successfully.", data: product }));
     }
 
+      //! Create Product
     else if(method === "POST" && url === "/products") {
         // "abcd" => "a", "b", "c" => "abc"
         const body = await bodyParser(req);
@@ -65,6 +73,7 @@ const id = urlParams && urlParams[1] === "products" ? Number(urlParams[2])  :nul
             data: newProduct 
         }));
     }
+      //! Update Product
     else if(method === "PUT" && id !== null) {
         const body = await bodyParser(req);
         const products =  productService();
@@ -84,6 +93,26 @@ const id = urlParams && urlParams[1] === "products" ? Number(urlParams[2])  :nul
         res.writeHead(200, { "Content-type": "application/json" })
         res.end(JSON.stringify({ message: "Product updated successfully.", 
             data: products[index]
+        }));
+    }
+    //! Delete Product
+    else if(method === "DELETE" && id !== null) {
+        const products = productService();
+
+        const index = products.findIndex((p:IProduct) => p.id === id);
+        // console.log(index);
+        if(index < 0) {
+            res.writeHead(404, { "Content-type": "application/json" })
+        res.end(JSON.stringify({ message: "Product not found!", 
+        }));
+        }
+
+        products.splice(index, 1);
+        createProduct(products);
+
+
+        res.writeHead(200, { "Content-type": "application/json" })
+        res.end(JSON.stringify({ message: "Product deleted successfully."
         }));
     }
 
