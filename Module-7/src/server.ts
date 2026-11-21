@@ -21,6 +21,7 @@
 import express, { type Application, type Request, type Response } from "express";
 import { Pool } from "pg";
 import config from "./config";
+import { request } from "http";
 
 const app: Application = express();
 const port = 5000;
@@ -29,11 +30,13 @@ app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
+//* connection with DB
 const pool = new Pool({
     connectionString: config.dbString
 })
 // console.log(pool);
 
+//*  Created postgreSQL table
 const initDB = async () => {
     try {
         await pool.query(`
@@ -63,8 +66,9 @@ app.get("/", (req: Request, res: Response) => {
         message: "This is root route!",
         author: "PH",
     })
-})
+});
 
+//* Inserted users data to bd
 app.post("/api/v1/users", async (req: Request, res: Response) => {
     try {
         // console.log(req.body);
@@ -93,6 +97,56 @@ app.post("/api/v1/users", async (req: Request, res: Response) => {
     }
 
 });
+
+//* get all users (fetch) data from DB
+app.get("/api/v1/users", async(req: Request, res: Response) => {
+    try {
+        const result = await pool.query(`
+            SELECT * FROM users
+        `)
+            // console.log(result);
+            res.status(200).json({
+            success: true,
+            message: "Users data retrieved successfully !",
+            data: result.rows
+        });
+
+    } catch (error:any) {
+        res.status(500).json({
+            success: false,
+            message: error?.message,
+            data: error
+        });
+    }
+});
+
+//* Get single user data
+app.get("/api/v1/users/:id", async(req: Request, res: Response) => {
+    try {
+        // const id = req.params.id
+        const {id} = req.params;
+
+        const result = await pool.query(`
+            SELECT * FROM users WHERE id=$1
+        `, [id],
+         );
+
+        //  console.log(result.rows[0].email);
+        res.status(200).json({
+            success: true,
+            message: "User data retrieved successfully !",
+            data: result.rows[0]
+            });
+        
+    } catch (error:any) {
+        res.status(500).json({
+            success: false,
+            message: error?.message,
+            data: error
+        });
+    };
+});
+
 
 app.listen(port, () => {
     console.log(`Our express app is running on port ${port}`);
