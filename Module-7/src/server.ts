@@ -13,7 +13,14 @@
 //* npm i tsx
 // TypeScript Execute (tsx): is a fast, zero-configuration CLI tool and runtime enhancement for Node.js 
 
+//! Database: Neon PostgreSQL (Structured Query Language) 
+// * 1. npm i pg
+// PG is a Non-blocking PostgreSQL  client for Node.js.
+// * 2. npm i @types/pg
+
 import express, { type Application, type Request, type Response } from "express";
+import { Pool } from "pg";
+import config from "./config";
 
 const app: Application = express();
 const port = 5000;
@@ -22,8 +29,35 @@ app.use(express.json());
 app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req: Request, res:Response) => {
-    console.log(req);
+const pool = new Pool({
+    connectionString: config.dbString
+})
+// console.log(pool);
+
+const initDB = async () => {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users(
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255),
+            email VARCHAR(255) UNIQUE NOT NULL,
+            password VARCHAR(255) NOT NULL,
+            age INT,
+            is_Active BOOLEAN DEFAULT true,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+            );
+       `);
+        console.log("Database connected successfully!");
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+initDB();
+
+app.get("/", (req: Request, res: Response) => {
+    // console.log(req);
     res.status(200).json({
         success: true,
         message: "This is root route!",
@@ -31,8 +65,33 @@ app.get("/", (req: Request, res:Response) => {
     })
 })
 
-app.post("/", async(req: Request, res:Response) => {
-    console.log(req.body);
+app.post("/api/v1/users", async (req: Request, res: Response) => {
+    try {
+        // console.log(req.body);
+        const { name, email, password, age } = req.body;
+        // console.log(password);
+
+        const result = await pool.query(`
+        INSERT INTO users (name, email, age, password) VALUES($1, $2, $3, $4) RETURNING *
+        `,
+            [name, email, age, password],
+        );
+
+        // console.log(result);
+
+        res.status(201).json({
+            success: true,
+            message: "User created!",
+            data: result.rows[0]
+        });
+    } catch (error: any) {
+         res.status(500).json({
+            success: false,
+            message: error?.message,
+            data: error
+        });
+    }
+
 });
 
 app.listen(port, () => {
