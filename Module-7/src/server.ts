@@ -24,7 +24,7 @@ import config from "./config";
 import { request } from "http";
 
 const app: Application = express();
-const port = 5000;
+const port = config.port;
 
 app.use(express.json());
 app.use(express.text());
@@ -187,7 +187,7 @@ app.put("/api/v1/users/:id", async (req: Request, res: Response) => {
             message: " User Not Found !"
         });
         }
-        
+
         res.status(200).json({
             success: true,
             message: "User data updated successfully !",

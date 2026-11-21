@@ -1,10 +1,11 @@
 import dotenv from "dotenv";
 import path from "path";
 
-dotenv.config({path: path.resolve(process.cwd(), ".env")});
+dotenv.config({path: path.join(process.cwd(), ".env")});
 
 const config = {
-    dbString: String(process.env.DBString),
+    port: process.env.PORT,
+    dbString: String(process.env.DB_URL),
 };
 
 
