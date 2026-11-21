@@ -89,7 +89,7 @@ app.post("/api/v1/users", async (req: Request, res: Response) => {
             data: result.rows[0]
         });
     } catch (error: any) {
-         res.status(500).json({
+        res.status(500).json({
             success: false,
             message: error?.message,
             data: error
@@ -99,19 +99,19 @@ app.post("/api/v1/users", async (req: Request, res: Response) => {
 });
 
 //* get all users (fetch) data from DB
-app.get("/api/v1/users", async(req: Request, res: Response) => {
+app.get("/api/v1/users", async (req: Request, res: Response) => {
     try {
         const result = await pool.query(`
             SELECT * FROM users
         `)
-            // console.log(result);
-            res.status(200).json({
+        // console.log(result);
+        res.status(200).json({
             success: true,
             message: "Users data retrieved successfully !",
             data: result.rows
         });
 
-    } catch (error:any) {
+    } catch (error: any) {
         res.status(500).json({
             success: false,
             message: error?.message,
@@ -121,24 +121,24 @@ app.get("/api/v1/users", async(req: Request, res: Response) => {
 });
 
 //* Get single user data
-app.get("/api/v1/users/:id", async(req: Request, res: Response) => {
+app.get("/api/v1/users/:id", async (req: Request, res: Response) => {
     try {
         // const id = req.params.id
-        const {id} = req.params;
+        const { id } = req.params;
 
         const result = await pool.query(`
             SELECT * FROM users WHERE id=$1
         `, [id],
-         );
+        );
 
         //  console.log(result.rows[0].email);
         res.status(200).json({
             success: true,
             message: "User data retrieved successfully !",
             data: result.rows[0]
-            });
-        
-    } catch (error:any) {
+        });
+
+    } catch (error: any) {
         res.status(500).json({
             success: false,
             message: error?.message,
@@ -146,6 +146,41 @@ app.get("/api/v1/users/:id", async(req: Request, res: Response) => {
         });
     };
 });
+
+
+// Update a user
+app.put("/api/v1/users/:id", async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const {name, password, age, is_active} = req.body;
+
+        const result = await pool.query(`
+            UPDATE users 
+            SET 
+            name = COALESCE($1, name),
+            password = COALESCE($2, password),
+            age = COALESCE($3, age),
+            is_Active = COALESCE($4, is_Active),
+            updated_at = NOW()
+            WHERE id=$5 RETURNING *
+            `,
+            [name ?? null, password ?? null, age ?? null, is_active ?? null, id ],
+        );
+
+        res.status(200).json({
+            success: true,
+            message: "User data updated successfully !",
+            data: result.rows[0]
+        });
+
+    } catch (error: any) {
+        res.status(500).json({
+            success: false,
+            message: error?.message,
+            data: error
+        });
+    }
+})
 
 
 app.listen(port, () => {
