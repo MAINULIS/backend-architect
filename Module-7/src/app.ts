@@ -19,8 +19,8 @@
 // * 2. npm i @types/pg
 
 import express, { type Application, type Request, type Response } from "express";
-import { request } from "http";
 import { pool } from "./db";
+import { userRoute } from "./modules/users/user.route";
 
 const app: Application = express();
 
@@ -29,7 +29,7 @@ app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
 
-
+// root route
 app.get("/", (req: Request, res: Response) => {
     // console.log(req);
     res.status(200).json({
@@ -40,34 +40,8 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 //* Inserted users data to bd
-app.post("/api/v1/users", async (req: Request, res: Response) => {
-    try {
-        // console.log(req.body);
-        const { name, email, password, age } = req.body;
-        // console.log(password);
+app.use("/api/v1/users", userRoute);
 
-        const result = await pool.query(`
-        INSERT INTO users (name, email, age, password) VALUES($1, $2, $3, $4) RETURNING *
-        `,
-            [name, email, age, password],
-        );
-
-        // console.log(result);
-
-        res.status(201).json({
-            success: true,
-            message: "User created!",
-            data: result.rows[0]
-        });
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            data: error
-        });
-    }
-
-});
 
 //* get all users (fetch) data from DB
 app.get("/api/v1/users", async (req: Request, res: Response) => {
