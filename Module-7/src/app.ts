@@ -43,69 +43,6 @@ app.get("/", (req: Request, res: Response) => {
 app.use("/api/v1/users", userRoute);
 
 
-//* get all users (fetch) data from DB
-app.get("/api/v1/users", async (req: Request, res: Response) => {
-    try {
-        const result = await pool.query(`
-            SELECT * FROM users
-        `)
-        // console.log(result);
-        if(result.rowCount === 0) {
-            res.status(404).json({
-            success: false,
-            message: " User Not Found !"
-        });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "Users data retrieved successfully !",
-            data: result.rows
-        });
-
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            data: error
-        });
-    }
-});
-
-//* Get single user data
-app.get("/api/v1/users/:id", async (req: Request, res: Response) => {
-    try {
-        // const id = req.params.id
-        const { id } = req.params;
-
-        const result = await pool.query(`
-            SELECT * FROM users WHERE id=$1
-        `, [id],
-        );
-
-        //  console.log(result.rows[0].email);
-        if(result.rowCount === 0) {
-            res.status(404).json({
-            success: false,
-            message: " User Not Found !"
-        });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "User data retrieved successfully !",
-            data: result.rows[0]
-        });
-
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            data: error
-        });
-    };
-});
-
 
 //* Update a user
 app.put("/api/v1/users/:id", async (req: Request, res: Response) => {
