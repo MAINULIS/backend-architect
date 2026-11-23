@@ -29,6 +29,10 @@ app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
 
+//* Main path
+app.use("/api/v1/users", userRoute);
+
+
 // root route
 app.get("/", (req: Request, res: Response) => {
     // console.log(req);
@@ -38,85 +42,6 @@ app.get("/", (req: Request, res: Response) => {
         author: "PH",
     })
 });
-
-//* Inserted users data to bd
-app.use("/api/v1/users", userRoute);
-
-
-
-//* Update a user
-app.put("/api/v1/users/:id", async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const { name, password, age, is_active } = req.body;
-
-        const result = await pool.query(`
-            UPDATE users 
-            SET 
-            name = COALESCE($1, name),
-            password = COALESCE($2, password),
-            age = COALESCE($3, age),
-            is_Active = COALESCE($4, is_Active),
-            updated_at = NOW()
-            WHERE id=$5 RETURNING *
-            `,
-            [name ?? null, password ?? null, age ?? null, is_active ?? null, id],
-        );
-
-        if(result.rowCount === 0) {
-            res.status(404).json({
-            success: false,
-            message: " User Not Found !"
-        });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "User data updated successfully !",
-            data: result.rows[0]
-        });
-
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            data: error
-        });
-    }
-});
-
-//* Delete a user
-app.delete("/api/v1/users/:id", async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-
-        const result = await pool.query(`
-            DELETE FROM users WHERE id=$1
-            `, [id]
-        );
-
-        if(result.rowCount === 0) {
-            res.status(404).json({
-            success: false,
-            message: " User Not Found !"
-        });
-        }
-
-        res.status(200).json({
-            success: true,
-            message: "The User Deleted successfully !"
-        });
-
-        // console.log(result);
-
-    } catch (error: any) {
-        res.status(500).json({
-            success: false,
-            message: error?.message,
-            data: error
-        });
-    }
-})
 
 
 export default app;
