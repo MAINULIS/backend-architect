@@ -26,7 +26,7 @@ export const initDB = async () => {
         //* create a table for user profile relation with users table
 
         await pool.query(`
-            CREATE TABLE IF NOT EXISTS profile(
+            CREATE TABLE IF NOT EXISTS profiles(
             id SERIAL PRIMARY KEY,
             user_id INT UNIQUE REFERENCES users(id) ON DELETE CASCADE,
             bio TEXT,

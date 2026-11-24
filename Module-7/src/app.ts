@@ -20,6 +20,7 @@
 
 import express, { type Application, type Request, type Response } from "express";
 import { userRoute } from "./modules/users/user.route";
+import { profileRouter } from "./modules/profiles/profile.route";
 
 const app: Application = express();
 
@@ -28,8 +29,11 @@ app.use(express.text());
 app.use(express.urlencoded({ extended: true }));
 
 
-//* Main path
+//* Main path for users
 app.use("/api/v1/users", userRoute);
+
+//* main path for profile
+app.use("/api/v1/profiles", profileRouter)
 
 
 // root route
