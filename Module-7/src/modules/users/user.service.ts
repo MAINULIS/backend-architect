@@ -1,5 +1,6 @@
 import { pool } from "../../db";
 import type { IUser } from "./user.interface";
+import bcrypt from "bcryptjs";
 
 // all logic in this file
 
@@ -7,12 +8,18 @@ const createUserIntoDB = async (payload: IUser) => {
     // console.log(req.body);
     const { name, email, password, age } = payload;
 
+    // npm i bcrypt.js: for hashing password
+    const hashPassword = await bcrypt.hash(password, 10);
+    // console.log(hashPassword);
+    
+
     const result = await pool.query(`
         INSERT INTO users (name, email, age, password) VALUES($1, $2, $3, $4) RETURNING *
         `,
-        [name, email, age, password],
+        [name, email, age, hashPassword],
     );
 
+    delete result.rows[0].password;
     return result;
 
     // console.log(result);
