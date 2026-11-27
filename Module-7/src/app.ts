@@ -18,9 +18,16 @@
 // PG is a Non-blocking PostgreSQL  client for Node.js.
 // * 2. npm i @types/pg
 
+//! // npm i bcrypt.js: for hashing password
+
+//! install jwt
+//1. npm install jsonwebtoken
+// 2.npm i @types/jsonwebtoken
+
 import express, { type Application, type Request, type Response } from "express";
 import { userRoute } from "./modules/users/user.route";
 import { profileRouter } from "./modules/profiles/profile.route";
+import { authRoute } from "./modules/auth/auth.route";
 
 const app: Application = express();
 
@@ -34,6 +41,9 @@ app.use("/api/v1/users", userRoute);
 
 //* main path for profile
 app.use("/api/v1/profiles", profileRouter)
+
+//* authentication route
+app.use("/api/v1/auth", authRoute)
 
 
 // root route
